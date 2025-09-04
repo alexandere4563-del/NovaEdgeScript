@@ -442,3 +442,18 @@ end)
 end)
 end,
 })
+local EspPeltTraderToggle = EspTab:CreateToggle({
+   Name = "Pelt Trader Esp",
+   CurrentValue = false,
+   Flag = "EspPeltTrader",
+   Callback = function(Value)
+  ActiveEspPeltTrader = Value 
+task.spawn(function()
+while ActiveEspPeltTrader do 
+task.spawn(function()
+ for _,Obj in pairs(Game.Workspace.Characters:GetChildren()) do 
+if Obj:isA("Model") and Obj.PrimaryPart and Obj.Name == "Pelt Trader" and not Obj:FindFirstChildOfClass("Highlight") and not Obj.PrimaryPart:FindFirstChildOfClass("BillboardGui") then
+CreateEsp(Obj,Color3.fromRGB(0,255,255),Obj.Name,Obj.PrimaryPart) 
+end 
+end
+end)
