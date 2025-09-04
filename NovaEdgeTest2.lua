@@ -163,3 +163,28 @@ local function sFLY(vfly)
  end)
  FLY()
 end
+local function NOFLY()
+ FLYING = false
+ if flyKeyDown or flyKeyUp then flyKeyDown:Disconnect() flyKeyUp:Disconnect() end
+ if Players.LocalPlayer.Character:FindFirstChildOfClass('Humanoid') then
+  Players.LocalPlayer.Character:FindFirstChildOfClass('Humanoid').PlatformStand = false
+ end
+ pcall(function() workspace.CurrentCamera.CameraType = Enum.CameraType.Custom end)
+end
+
+local velocityHandlerName = "BodyVelocity"
+local gyroHandlerName = "BodyGyro"
+local mfly1
+local mfly2
+
+local function UnMobileFly()
+ pcall(function()
+  FLYING = false
+  local root = Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+  root:FindFirstChild(velocityHandlerName):Destroy()
+  root:FindFirstChild(gyroHandlerName):Destroy()
+  Players.LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid").PlatformStand = false
+  mfly1:Disconnect()
+  mfly2:Disconnect()
+ end)
+end
