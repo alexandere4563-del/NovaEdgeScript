@@ -283,3 +283,136 @@ local function MobileFly()
   end
  end)
 end
+local function CreateEsp(Char, Color, Text,Parent,number)
+ if not Char then return end
+ if Char:FindFirstChild("ESP") and Char:FindFirstChildOfClass("Highlight") then return end
+ local highlight = Char:FindFirstChildOfClass("Highlight") or Instance.new("Highlight")
+ highlight.Name = "ESP_Highlight"
+highlight.Adornee = Char
+highlight.FillColor = Color
+highlight.FillTransparency = 1
+highlight.OutlineColor = Color
+highlight.OutlineTransparency = 0
+highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+highlight.Enabled = true
+ highlight.Parent = Char
+
+	
+ local billboard = Char:FindFirstChild("ESP") or Instance.new("BillboardGui")
+ billboard.Name = "ESP"
+ billboard.Size = UDim2.new(0, 50, 0, 25)
+ billboard.AlwaysOnTop = true
+ billboard.StudsOffset = Vector3.new(0, number, 0)
+ billboard.Adornee = Parent
+ billboard.Enabled = true
+ billboard.Parent = Parent
+
+	
+ local label = billboard:FindFirstChildOfClass("TextLabel") or Instance.new("TextLabel")
+ label.Size = UDim2.new(1, 0, 1, 0)
+ label.BackgroundTransparency = 1
+ label.Text = Text
+ label.TextColor3 = Color
+ label.TextScaled = true
+ label.Parent = billboard
+
+ task.spawn(function()
+  local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+
+local LocalPlayer = Players.LocalPlayer
+local Camera = Workspace.CurrentCamera
+
+while highlight and billboard and Parent and Parent.Parent do
+ local cameraPosition = Camera and Camera.CFrame.Position
+ if cameraPosition and Parent and Parent:IsA("BasePart") then
+ local distance = (cameraPosition - Parent.Position).Magnitude
+    task.spawn(function()
+if ActiveDistanceEsp then
+label.Text = Text.." ("..math.floor(distance + 0.5).." m)"
+else
+label.Text = Text
+end
+end)
+
+ end
+
+ wait(0.1)
+end
+
+ end)
+end
+
+local function KeepEsp(Char,Parent)
+ if Char and Char:FindFirstChildOfClass("Highlight") and Parent:FindFirstChildOfClass("BillboardGui") then
+  Char:FindFirstChildOfClass("Highlight"):Destroy()
+  Parent:FindFirstChildOfClass("BillboardGui"):Destroy()
+ end
+end
+
+local function copyToClipboard(text)
+    if setclipboard then
+        setclipboard(text)
+    else
+        warn("setclipboard is not supported in this environment.")
+    end
+end
+local DiscordLink = DiscordTab:CreateButton({
+   Name = "Discord Link",
+   Callback = function()
+copyToClipboard("https://discord.gg/E2TqYRsRP4")
+end,
+})
+local PlayerNoclipToggle = PlayerTab:CreateToggle({
+   Name = "Noclip",
+   CurrentValue = false,
+   Flag = "ButtonNoclip", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+  ActiveNoclip = Value 
+task.spawn(function()
+while ActiveNoclip do 
+task.spawn(function()
+if Game.Players.LocalPlayer.Character then
+for _, Parts in pairs(Game.Players.LocalPlayer.Character:GetDescendants()) do
+if Parts:isA("BasePart") and Parts.CanCollide then
+Parts.CanCollide = false
+end
+end
+end
+end)
+task.wait(0.1)
+end 
+if Game.Players.LocalPlayer.Character then
+for _, Parts in pairs(Game.Players.LocalPlayer.Character:GetDescendants()) do
+if Parts:isA("BasePart") and not Parts.CanCollide then
+Parts.CanCollide = true
+end
+end
+end
+end)
+end,
+})
+local PlayerInfiniteJumpToggle = PlayerTab:CreateToggle({
+   Name = "Infinite Jump",
+   CurrentValue = false,
+   Flag = "ButtonInfiniteJump", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+  ActivateInfiniteJump = Value 
+while ActivateInfiniteJump do
+local plr = game:GetService('Players').LocalPlayer
+ local m = plr:GetMouse()
+ m.KeyDown:connect(function(k)
+  if ActivateInfiniteJump then
+   if k:byte() == 32 then
+   humanoid = game:GetService'Players'.LocalPlayer.Character:FindFirstChildOfClass('Humanoid')
+   humanoid:ChangeState('Jumping')
+   wait()
+   humanoid:ChangeState('Seated')
+   end
+  end
+ end)
+wait(0.1)
+end
+end,
+})                  
