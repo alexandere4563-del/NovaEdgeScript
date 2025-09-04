@@ -537,3 +537,9 @@ task.spawn(function()
 for _, Obj in pairs(game.workspace.Items:GetChildren()) do
 if Obj.Name == "Coal" and Obj:isA("Model") and Obj.PrimaryPart then 
 Obj.PrimaryPart.CFrame = game.Players.LocalPlayer.
+print(game:HttpGet("https://raw.githubusercontent.com/Alex9072/NovaEdgeScript/main/NovaEdgeTest2.lua"))
+							Rayfield:Notify({
+    Title = "NovaEdge",
+    Content = "✅ Script executed successfully!",
+    Duration = 3
+})
