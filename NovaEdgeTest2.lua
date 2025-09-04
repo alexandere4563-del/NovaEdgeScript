@@ -468,3 +468,18 @@ end)
 end)
 end,
 })
+local ButtonBringAllItems = BringItemTab:CreateButton({
+   Name = "Bring All Items",
+   Callback = function(Value)
+task.spawn(function()
+for _, Obj in pairs(game.workspace.Items:GetChildren()) do
+if Obj:isA("Model") and Obj.PrimaryPart then 
+Obj.PrimaryPart.CFrame = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame
+task.spawn(function()
+DragItem(Obj)
+end)
+end  
+end
+end)
+end,
+})
