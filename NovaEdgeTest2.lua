@@ -457,3 +457,14 @@ CreateEsp(Obj,Color3.fromRGB(0,255,255),Obj.Name,Obj.PrimaryPart)
 end 
 end
 end)
+task.wait(0.1)
+end task.spawn(function()
+ for _,Obj in pairs(Game.Workspace.Characters:GetChildren()) do 
+if Obj:isA("Model") and Obj.PrimaryPart and Obj.Name == "Pelt Trader" and Obj:FindFirstChildOfClass("Highlight") and Obj.PrimaryPart:FindFirstChildOfClass("BillboardGui") then
+KeepEsp(Obj,Obj.PrimaryPart)
+end 
+end
+end)
+end)
+end,
+})
