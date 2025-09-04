@@ -442,18 +442,3 @@ end)
 end)
 end,
 })
-local EspChildrensToggle = EspTab:CreateToggle({
-   Name = "Childrens Esp",
-   CurrentValue = false,
-   Flag = "EspChildrens",
-   Callback = function(Value)
-  ActiveEspChildren = Value 
-task.spawn(function()
-while ActiveEspChildren do 
-task.spawn(function()
- for _,Obj in pairs(Game.Workspace.Characters:GetChildren()) do 
-if Obj:isA("Model") and Obj.PrimaryPart and (Obj.Name == "Lost Child" or Obj.Name == "Lost Child2" or Obj.Name == "Lost Child3" or Obj.Name == "Lost Child4") and not Obj:FindFirstChildOfClass("Highlight") and not Obj.PrimaryPart:FindFirstChildOfClass("BillboardGui") then
-CreateEsp(Obj,Color3.fromRGB(0,255,0),Obj.Name,Obj.PrimaryPart) 
-end 
-end
-end)
