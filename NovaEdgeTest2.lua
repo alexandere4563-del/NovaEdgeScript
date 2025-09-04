@@ -5,6 +5,7 @@ local Window = Rayfield:CreateWindow({
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
    LoadingTitle = "99 Nights In The Forest",
    LoadingSubtitle = "Script By Alex",
+   ShowText = "NovaEdge", -- for mobile users to unhide rayfield, change if you'd like
    Theme = selectedTheme, -- Check https://docs.sirius.menu/rayfield/configuration/themes
 
    DisableRayfieldPrompts = false,
@@ -483,3 +484,23 @@ end
 end)
 end,
 })
+local ButtonBringAllLogs = BringItemTab:CreateButton({
+   Name = "Bring All Logs",
+   Callback = function(Value)
+task.spawn(function()
+for _, Obj in pairs(game.workspace.Items:GetChildren()) do
+if Obj.Name == "Log" and Obj:isA("Model") and Obj.PrimaryPart then 
+Obj.PrimaryPart.CFrame = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame
+DragItem(Obj)
+end  
+end
+end)
+end,
+})
+local ButtonBringAllCoal = BringItemTab:CreateButton({
+   Name = "Bring All Coal",
+   Callback = function(Value)
+task.spawn(function()
+for _, Obj in pairs(game.workspace.Items:GetChildren()) do
+if Obj.Name == "Coal" and Obj:isA("Model") and Obj.PrimaryPart then 
+Obj.PrimaryPart.CFrame = game.Players.LocalPlayer.
