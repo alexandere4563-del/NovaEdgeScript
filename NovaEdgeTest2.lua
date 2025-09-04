@@ -469,20 +469,53 @@ end)
 end)
 end,
 })
-local ButtonBringAllItems = BringItemTab:CreateButton({
-   Name = "Bring All Items",
-   Callback = function(Value)
-task.spawn(function()
-for _, Obj in pairs(game.workspace.Items:GetChildren()) do
-if Obj:isA("Model") and Obj.PrimaryPart then 
-Obj.PrimaryPart.CFrame = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame
-task.spawn(function()
-DragItem(Obj)
-end)
-end  
-end
-end)
-end,
+local ButtonAutoStoreChildren = BringItemTab:CreateButton({
+    Name = "Auto Store Children",
+    Callback = function()
+        Rayfield:Notify({
+            Title = "Reminder",
+            Content = "🧺 Please use a sack to store children items!",
+            Duration = 4
+        })
+
+        task.spawn(function()
+            local itemsFolder = game.Workspace:FindFirstChild("Items")
+            local foundAny = false
+
+            local function bringModels(folder)
+                for _, obj in pairs(folder:GetChildren()) do
+                    if obj:IsA("Model") and obj.PrimaryPart then
+                        foundAny = true
+                        obj.PrimaryPart.CFrame = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame
+                        task.spawn(function()
+                            pcall(function()
+                                DragItem(obj)
+                            end)
+                        end)
+                    elseif obj:IsA("Folder") or obj:IsA("Model") then
+                        bringModels(obj) -- Recurse into subfolders or nested models
+                    end
+                end
+            end
+
+            if itemsFolder then
+                bringModels(itemsFolder)
+                if not foundAny then
+                    Rayfield:Notify({
+                        Title = "No Children Found",
+                        Content = "❌ Could not find any children items to store.",
+                        Duration = 4
+                    })
+                end
+            else
+                Rayfield:Notify({
+                    Title = "Missing Folder",
+                    Content = "❌ Items folder not found in workspace.",
+                    Duration = 4
+                })
+            end
+        end)
+    end
 })
 local ButtonBringAllLogs = BringItemTab:CreateButton({
    Name = "Bring All Logs",
