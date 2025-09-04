@@ -188,3 +188,98 @@ local function UnMobileFly()
   mfly2:Disconnect()
  end)
 end
+local function NOFLY()
+ FLYING = false
+ if flyKeyDown or flyKeyUp then flyKeyDown:Disconnect() flyKeyUp:Disconnect() end
+ if Players.LocalPlayer.Character:FindFirstChildOfClass('Humanoid') then
+  Players.LocalPlayer.Character:FindFirstChildOfClass('Humanoid').PlatformStand = false
+ end
+ pcall(function() workspace.CurrentCamera.CameraType = Enum.CameraType.Custom end)
+end
+
+local velocityHandlerName = "BodyVelocity"
+local gyroHandlerName = "BodyGyro"
+local mfly1
+local mfly2
+
+local function UnMobileFly()
+ pcall(function()
+  FLYING = false
+  local root = Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+  root:FindFirstChild(velocityHandlerName):Destroy()
+  root:FindFirstChild(gyroHandlerName):Destroy()
+  Players.LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid").PlatformStand = false
+  mfly1:Disconnect()
+  mfly2:Disconnect()
+ end)
+end
+
+local function MobileFly()
+ UnMobileFly()
+ FLYING = true
+
+ local root = Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+ local camera = workspace.CurrentCamera
+ local v3none = Vector3.new()
+ local v3zero = Vector3.new(0, 0, 0)
+ local v3inf = Vector3.new(9e9, 9e9, 9e9)
+
+ local controlModule = require(Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule"))
+ local bv = Instance.new("BodyVelocity")
+ bv.Name = velocityHandlerName
+ bv.Parent = root
+ bv.MaxForce = v3zero
+ bv.Velocity = v3zero
+
+ local bg = Instance.new("BodyGyro")
+ bg.Name = gyroHandlerName
+ bg.Parent = root
+ bg.MaxTorque = v3inf
+ bg.P = 1000
+ bg.D = 50
+
+ mfly1 = Players.LocalPlayer.CharacterAdded:Connect(function()
+  local bv = Instance.new("BodyVelocity")
+  bv.Name = velocityHandlerName
+  bv.Parent = root
+  bv.MaxForce = v3zero
+  bv.Velocity = v3zero
+
+  local bg = Instance.new("BodyGyro")
+  bg.Name = gyroHandlerName
+  bg.Parent = root
+  bg.MaxTorque = v3inf
+  bg.P = 1000
+  bg.D = 50
+ end)
+
+ mfly2 = RunService.RenderStepped:Connect(function()
+  root = Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+  camera = workspace.CurrentCamera
+  if Players.LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid") and root and root:FindFirstChild(velocityHandlerName) and root:FindFirstChild(gyroHandlerName) then
+   local humanoid = Players.LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid")
+   local VelocityHandler = root:FindFirstChild(velocityHandlerName)
+   local GyroHandler = root:FindFirstChild(gyroHandlerName)
+
+   VelocityHandler.MaxForce = v3inf
+   GyroHandler.MaxTorque = v3inf
+   humanoid.PlatformStand = true
+   GyroHandler.CFrame = camera.CoordinateFrame
+   VelocityHandler.Velocity = v3none
+
+   local direction = controlModule:GetMoveVector()
+   if direction.X > 0 then
+    VelocityHandler.Velocity = VelocityHandler.Velocity + camera.CFrame.RightVector * (direction.X * ((iyflyspeed) * 50))
+   end
+   if direction.X < 0 then
+    VelocityHandler.Velocity = VelocityHandler.Velocity + camera.CFrame.RightVector * (direction.X * ((iyflyspeed) * 50))
+   end
+   if direction.Z > 0 then
+    VelocityHandler.Velocity = VelocityHandler.Velocity - camera.CFrame.LookVector * (direction.Z * ((iyflyspeed) * 50))
+   end
+   if direction.Z < 0 then
+    VelocityHandler.Velocity = VelocityHandler.Velocity - camera.CFrame.LookVector * (direction.Z * ((iyflyspeed) * 50))
+   end
+  end
+ end)
+end
