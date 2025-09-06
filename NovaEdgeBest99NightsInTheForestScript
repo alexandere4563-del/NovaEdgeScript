@@ -1,0 +1,470 @@
+local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
+
+local Window = Rayfield:CreateWindow({
+    Name = "Nova Edge",
+    Icon = 0, -- No icon for now; you can add a Roblox asset ID or Lucide string later
+    LoadingTitle = "NovaEdge Interface",
+    LoadingSubtitle = "for 99 Nights in the Forest",
+    ShowText = "NovaEdge", -- For mobile users to toggle UI
+    Theme = "Default", -- You can change this to "Dark", "Light", "Midnight", etc.
+
+    ToggleUIKeybind = "K", -- Press K to toggle the UI
+
+    DisableRayfieldPrompts = false,
+    DisableBuildWarnings = false,
+
+    ConfigurationSaving = {
+        Enabled = true,
+        FolderName = "NovaEdge", -- Optional: saves config in a custom folder
+        FileName = "NovaEdgeConfig"
+    },
+
+    Discord = {
+        Enabled = false,
+        Invite = "noinvitelink",
+        RememberJoins = true
+    },
+
+    KeySystem = true,
+    KeySettings = {
+        Title = "Nova Edge Access",
+        Subtitle = "Key Required",
+        Note = "Enter the key to unlock NovaEdge features",
+        FileName = "NovaEdgeKey",
+        SaveKey = true,
+        GrabKeyFromSite = false,
+        Key = {"Roblox99nitf"} -- Your custom key
+    }
+})
+local InfoTab = Window:CreateTab("Info", "info")
+
+local ParagraphInfoServer = InfoTab:CreateParagraph({
+    Title = "Info",
+    Content = "Loading server info..."
+})
+local function getServerInfo()
+    local Players = game:GetService("Players")
+    local playerCount = #Players:GetPlayers()
+    local maxPlayers = Players.MaxPlayers
+    local isStudio = game:GetService("RunService"):IsStudio()
+
+    return {
+        PlaceId = game.PlaceId,
+        JobId = game.JobId,
+        IsStudio = isStudio,
+        CurrentPlayers = playerCount,
+        MaxPlayers = maxPlayers
+    }
+end
+
+task.wait(1)
+
+task.spawn(function()
+    local updatedInfo = getServerInfo()
+    local updatedContent = string.format(
+        "📌 PlaceId: %s\n🔑 JobId: %s\n🧪 IsStudio: %s\n👥 Players: %d/%d",
+        updatedInfo.PlaceId,
+        updatedInfo.JobId,
+        tostring(updatedInfo.IsStudio),
+        updatedInfo.CurrentPlayers,
+        updatedInfo.MaxPlayers
+    )
+
+    ParagraphInfoServer:Set({
+        Title = "Info",
+        Content = updatedContent
+    })
+end)
+task.spawn(function()
+    while true do
+        local updatedInfo = getServerInfo()
+        local updatedContent = string.format(
+            "📌 PlaceId: %s\n🔑 JobId: %s\n🧪 IsStudio: %s\n👥 Players: %d/%d",
+            updatedInfo.PlaceId,
+            updatedInfo.JobId,
+            tostring(updatedInfo.IsStudio),
+            updatedInfo.CurrentPlayers,
+            updatedInfo.MaxPlayers
+        )
+
+        ParagraphInfoServer:Set({
+            Title = "Info",
+            Content = updatedContent
+        })
+
+        task.wait(5) -- Refresh every 5 seconds
+    end
+end)
+local EspTab = Window:CreateTab("Esp","Eye")
+local EspChildrensToggle = EspTab:CreateToggle({
+    Name = "Childrens ESP (with Distance)",
+    CurrentValue = false,
+    Flag = "EspChildrens",
+    Callback = function(Value)
+        ActiveEspChildren = Value
+
+        if Value then
+            Rayfield:Notify({
+                Title = "NovaEdge",
+                Content = "ESP activated for Lost Children!",
+                Duration = 3,
+                Image = "baby"
+            })
+
+            task.spawn(function()
+                while ActiveEspChildren do
+                    for _, obj in pairs(workspace.Characters:GetChildren()) do
+                        if obj:IsA("Model") and obj.PrimaryPart and string.find(obj.Name, "Lost Child") then
+                            local part = obj.PrimaryPart
+
+                            -- Add Highlight if missing
+                            if not obj:FindFirstChild("ESP_Highlight") then
+                                local highlight = Instance.new("Highlight")
+                                highlight.Name = "ESP_Highlight"
+                                highlight.Adornee = obj
+                                highlight.FillColor = Color3.fromRGB(0, 255, 0)
+                                highlight.FillTransparency = 1
+                                highlight.OutlineColor = Color3.fromRGB(0, 255, 0)
+                                highlight.OutlineTransparency = 0
+                                highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                                highlight.Parent = obj
+                            end
+
+                            -- Add Billboard if missing
+                            if not part:FindFirstChild("ESP") then
+                                local billboard = Instance.new("BillboardGui")
+                                billboard.Name = "ESP"
+                                billboard.Size = UDim2.new(0, 100, 0, 25)
+                                billboard.AlwaysOnTop = true
+                                billboard.StudsOffset = Vector3.new(0, 3, 0)
+                                billboard.Adornee = part
+                                billboard.Parent = part
+
+                                local label = Instance.new("TextLabel")
+                                label.Size = UDim2.new(1, 0, 1, 0)
+                                label.BackgroundTransparency = 1
+                                label.TextColor3 = Color3.fromRGB(0, 255, 0)
+                                label.TextScaled = true
+                                label.Font = Enum.Font.GothamBold
+                                label.Text = obj.Name
+                                label.Name = "ESP_Label"
+                                label.Parent = billboard
+                            end
+                        end
+                    end
+                    task.wait(0.1)
+                end
+            end)
+
+            -- Distance updater loop
+            task.spawn(function()
+                while ActiveEspChildren do
+                    for _, obj in pairs(workspace.Characters:GetChildren()) do
+                        if obj:IsA("Model") and obj.PrimaryPart and string.find(obj.Name, "Lost Child") then
+                            local part = obj.PrimaryPart
+                            local billboard = part:FindFirstChild("ESP")
+                            local label = billboard and billboard:FindFirstChild("ESP_Label")
+
+                            if label then
+                                local camPos = workspace.CurrentCamera.CFrame.Position
+                                local distance = (camPos - part.Position).Magnitude
+                                label.Text = obj.Name .. " (" .. math.floor(distance) .. "m)"
+                            end
+                        end
+                    end
+                    task.wait(0.2)
+                end
+            end)
+        else
+            Rayfield:Notify({
+                Title = "NovaEdge",
+                Content = "❌ Lost Children ESP disabled.",
+                Duration = 3,
+                Image = "x"
+            })
+
+            for _, obj in pairs(workspace.Characters:GetChildren()) do
+                if string.find(obj.Name, "Lost Child") then
+                    if obj:FindFirstChild("ESPHighlight") then obj.ESPHighlight:Destroy() end
+                    if obj.PrimaryPart and obj.PrimaryPart:FindFirstChild("ESP") then
+                        obj.PrimaryPart.ESP:Destroy()
+                    end
+                end
+            end
+        end
+    end,
+})
+local BringStuffTab = Window:CreateTab("Bring Stuff", "package")
+-- Default selection
+local selectedFuels = {"Log"}
+
+-- Provide a normalized list of fuel keywords we consider
+local fuelKeywords = {
+    "log",
+    "sapling",
+    "coal",
+    "oil barrel",
+    "fuel canistar",
+    "canistar",
+    "fuel"
+}
+
+-- Helper: check if a single name matches the selection (case-insensitive, plain search)
+local function nameMatchesSelection(nameLower, selection)
+    if not selection or #selection == 0 then
+        return false
+    end
+
+    -- If the user selected "All", match any fuel keyword
+    for _, sel in ipairs(selection) do
+        if sel and type(sel) == "string" and sel:lower() == "all" then
+            -- match any fuelKeywords
+            for _, kw in ipairs(fuelKeywords) do
+                if string.find(nameLower, kw, 1, true) then
+                    return true
+                end
+            end
+            return false
+        end
+    end
+
+    -- Otherwise, check if the object's name contains any of the chosen strings
+    for _, sel in ipairs(selection) do
+        if type(sel) == "string" and sel ~= "" then
+            local s = sel:lower()
+            if string.find(nameLower, s, 1, true) then
+                return true
+            end
+            -- allow selected short names like "canistar" or "fuel" to match
+            for _, kw in ipairs(fuelKeywords) do
+                if s == kw and string.find(nameLower, kw, 1, true) then
+                    return true
+                end
+            end
+        end
+    end
+
+    return false
+end
+
+-- Move a model so that its base part (or center) is near the player's HRP
+local function moveModelTo(model, hrp)
+    if not model or not model.Parent then return false end
+
+    -- Prefer using PrimaryPart
+    if model.PrimaryPart then
+        local offset = Vector3.new(math.random(-3,3), math.random(1,3), math.random(-3,3))
+        local ok, err = pcall(function()
+            model:SetPrimaryPartCFrame(hrp.CFrame * CFrame.new(offset))
+        end)
+        if not ok then
+            -- fallback to moving parts individually below
+        else
+            return true
+        end
+    end
+
+    -- Find any base part in the model to compute a translation
+    local basePart
+    for _, desc in ipairs(model:GetDescendants()) do
+        if desc:IsA("BasePart") then
+            basePart = desc
+            break
+        end
+    end
+
+    if not basePart then
+        return false
+    end
+
+    local offset = Vector3.new(math.random(-3,3), math.random(1,3), math.random(-3,3))
+    local translation = (hrp.Position + offset) - basePart.Position
+
+    local success = false
+    for _, desc in ipairs(model:GetDescendants()) do
+        if desc:IsA("BasePart") then
+            local ok, _ = pcall(function()
+                desc.CFrame = desc.CFrame + translation
+            end)
+            if ok then success = true end
+        end
+    end
+
+    return success
+end
+
+-- Move a single part (not in a moved model) near the HRP
+local function movePartTo(part, hrp)
+    if not part or not part.Parent then return false end
+    local offset = Vector3.new(math.random(-3,3), math.random(1,3), math.random(-3,3))
+    local ok, err = pcall(function()
+        part.CFrame = hrp.CFrame * CFrame.new(offset)
+    end)
+    return ok
+end
+
+-- UI: Dropdown for selecting fuel types (keeps your existing Rayfield widget usage)
+local FuelDropdown = BringStuffTab:CreateDropdown({
+    Name = "Select Fuel Types",
+    Options = {"All", "Log", "Sapling", "Coal", "Oil Barrel", "Fuel Canistar", "Bio Fuel"},
+    CurrentOption = {"Log"},
+    MultipleOptions = true,
+    Flag = "FuelDropdown",
+    Callback = function(Options)
+        selectedFuels = Options
+        Rayfield:Notify({
+            Title = "NovaEdge",
+            Content = "🧪 Selected fuels: " .. table.concat(Options, ", "),
+            Duration = 4,
+            Image = "flame"
+        })
+    end,
+})
+
+-- Button: bring selected fuel items to player
+local ButtonBringSelectedFuel = BringStuffTab:CreateButton({
+    Name = "Bring Selected Fuel",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        if not player then
+            Rayfield:Notify({
+                Title = "NovaEdge",
+                Content = "❌ Could not find LocalPlayer.",
+                Duration = 3,
+                Image = "x"
+            })
+            return
+        end
+
+        local char = player.Character or player.CharacterAdded:Wait()
+        local hrp = char:FindFirstChild("HumanoidRootPart") or char:WaitForChild("HumanoidRootPart")
+
+        local broughtCount = 0
+        local movedModels = {} -- prevent double-moving of model children
+
+        -- scan workspace for candidate models/parts
+        for _, obj in ipairs(workspace:GetDescendants()) do
+            -- skip player's character and players folder contents
+            if obj:IsDescendantOf(char) then
+                -- skip
+            else
+                -- Model handling
+                if obj:IsA("Model") then
+                    local nameLower = obj.Name and obj.Name:lower() or ""
+                    local matched = nameMatchesSelection(nameLower, selectedFuels)
+
+                    -- If model name didn't match, check its child parts' names
+                    if not matched then
+                        for _, desc in ipairs(obj:GetDescendants()) do
+                            if desc:IsA("BasePart") then
+                                local dname = desc.Name and desc.Name:lower() or ""
+                                if nameMatchesSelection(dname, selectedFuels) then
+                                    matched = true
+                                    break
+                                end
+                            end
+                        end
+                    end
+
+                    if matched and not movedModels[obj] then
+                        local ok = moveModelTo(obj, hrp)
+                        if ok then
+                            movedModels[obj] = true
+                            broughtCount = broughtCount + 1
+                        end
+                    end
+
+                -- Part handling (not inside a model that we already moved)
+                elseif obj:IsA("BasePart") then
+                    -- skip if this part is inside a model that we already moved (handled above)
+                    local parentModel = obj:FindFirstAncestorWhichIsA and obj:FindFirstAncestorWhichIsA("Model")
+                    if parentModel and movedModels[parentModel] then
+                        -- already moved as model
+                    else
+                        local partNameLower = obj.Name and obj.Name:lower() or ""
+                        if nameMatchesSelection(partNameLower, selectedFuels) then
+                            local ok = movePartTo(obj, hrp)
+                            if ok then
+                                broughtCount = broughtCount + 1
+                            end
+                        end
+                    end
+                end
+            end
+        end
+
+        Rayfield:Notify({
+            Title = "NovaEdge",
+            Content = broughtCount > 0 and ("🪵 Brought " .. tostring(broughtCount) .. " fuel item(s)!") or "❌ No matching fuel found.",
+            Duration = 4,
+            Image = broughtCount > 0 and "flame" or "x"
+        })
+    end,
+})
+local AutomationTab = Window:CreateTab("Automation", "layout-grid")
+local TeleportTab = Window:CreateTab("Teleport", "navigation")
+local ButtonTeleportToCampfire = TeleportTab:CreateButton({
+    Name = "Teleport to Campfire",
+    Callback = function()
+        task.spawn(function()
+            local player = game.Players.LocalPlayer
+            local char = player.Character or player.CharacterAdded:Wait()
+            local hrp = char:WaitForChild("HumanoidRootPart")
+
+            local campfire = Workspace:FindFirstChild("Map")
+                and Workspace.Map:FindFirstChild("Campground")
+                and Workspace.Map.Campground:FindFirstChild("MainFire")
+
+            if campfire and campfire.PrimaryPart then
+                hrp.CFrame = campfire.PrimaryPart.CFrame + Vector3.new(0, 5, 0)
+                Rayfield:Notify({
+                    Title = "NovaEdge",
+                    Content = "Teleported to Campfire!",
+                    Duration = 3,
+                    Image = "flame-kindling"
+                })
+            else
+                Rayfield:Notify({
+                    Title = "NovaEdge",
+                    Content = "Campfire not found.",
+                    Duration = 4,
+                    Image = "x"
+                })
+            end
+        end)
+    end,
+})
+local PlayerTab = Window:CreateTab("Player", "user")
+
+local ParagraphPlayerInfo = PlayerTab:CreateParagraph({
+    Title = "Your Player Info",
+    Content = "Loading..."
+})
+
+local function getPlayerInfo()
+    local player = game.Players.LocalPlayer
+    return {
+        Username = player.Name,
+        UserId = player.UserId,
+        Team = player.Team and player.Team.Name or "None"
+    }
+end
+
+task.spawn(function()
+    while true do
+        local info = getPlayerInfo()
+        local content = string.format(
+            "👤 Username: %s\n🆔 UserId: %d\n🛡️ Team: %s",
+            info.Username,
+            info.UserId,
+            info.Team
+        )
+
+        ParagraphPlayerInfo:Set({
+            Title = "Your Player Info",
+            Content = content
+        })
+
+        task.wait(5) -- Refresh every 5 seconds
+    end
+end)
